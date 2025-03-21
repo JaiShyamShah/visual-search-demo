@@ -1,26 +1,20 @@
-# Welcome to your Lovable project
+# Visual Search Demo
 
-## Project info
+This repository demonstrates a visual search application built using modern web technologies. Below are instructions for setting up the project, editing files, and deploying the application.
 
-**URL**: https://lovable.dev/projects/28562ca6-ad54-4934-8a2b-7fa9b12ed35e
+---
 
-## How can I edit this code?
+## Requirements
 
-There are several ways of editing your application.
+Ensure you have the following installed:
 
-**Use Lovable**
+- **Node.js** and **npm** ([Install using nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/28562ca6-ad54-4934-8a2b-7fa9b12ed35e) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started Locally
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Follow these steps to set up the project locally:
 
 ```sh
 # Step 1: Clone the repository using the project's Git URL.
@@ -36,34 +30,53 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Editing Files Directly in GitHub
 
-**Use GitHub Codespaces**
+You can edit files directly in GitHub without cloning the repository:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Navigate to the desired file(s) in your GitHub repository.
+2. Click the **Edit** button (pencil icon) at the top right of the file view.
+3. Make your changes and commit them.
 
-## What technologies are used for this project?
+---
 
-This project is built with .
+## Using GitHub Codespaces
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+GitHub Codespaces provides a cloud-based development environment for this project:
 
-## How can I deploy this project?
+1. Navigate to the main page of your repository.
+2. Click on the **Code** button (green button) near the top right.
+3. Select the **Codespaces** tab.
+4. Click **New codespace** to launch a new Codespace environment.
+5. Edit files directly within Codespaces, then commit and push your changes.
 
-Simply open [Lovable](https://lovable.dev/projects/28562ca6-ad54-4934-8a2b-7fa9b12ed35e) and click on Share -> Publish.
+For more details, refer to [GitHub Codespaces Documentation](https://docs.github.com/codespaces).
 
-## I want to use a custom domain - is that possible?
+---
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Technologies Used
+
+This project is built with:
+
+- **Vite**
+- **TypeScript**
+- **React**
+- **shadcn-ui**
+- **Tailwind CSS**
+
+---
+
+## Deployment Instructions
+
+To deploy this project locally or on a server:
+
+1. Run `python app.py` to start the FastAPI backend and `npm run dev` to start the deployment server.
+2. Use platforms like Netlify for deployment if you want to host under your own domain.
+
+---
+
+## Custom Domain Support
+
+We currently do not support custom domains directly. However, using Netlify is recommended for deploying under a custom domain.
