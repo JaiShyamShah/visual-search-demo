@@ -3,13 +3,18 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import ImageUploader from "@/components/ImageUploader";
-import ImageGrid, { ImageItem } from "@/components/ImageGrid";
-import { findSimilarImages } from "@/utils/imageUtils";
+import ImageGrid from "@/components/ImageGrid";
 import { Zap, ZapOff } from "lucide-react";
+import { searchImage } from "@/services/api";
+
+interface SearchResult {
+  path: string;
+  similarity: number;
+}
 
 const Search = () => {
   const [searchImage, setSearchImage] = useState<{ file: File; preview: string } | null>(null);
-  const [results, setResults] = useState<ImageItem[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   
   const handleImageSelect = (file: File, preview: string) => {
@@ -26,11 +31,20 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      const similarImages = await findSimilarImages(searchImage.preview);
-      setResults(similarImages);
+      const similarImages = await searchImage(searchImage.file);
+      
+      // Convert API results to the format expected by ImageGrid
+      const formattedResults = similarImages.map((result) => ({
+        id: result.path,
+        src: `http://localhost:8000${result.path.replace('.', '')}`,
+        similarity: result.similarity,
+        title: result.path.split('/').pop() || ''
+      }));
+      
+      setResults(formattedResults);
     } catch (error) {
       console.error("Search error:", error);
-      toast.error("Error performing image search");
+      toast.error(error instanceof Error ? error.message : "Error performing image search");
     } finally {
       setIsSearching(false);
     }

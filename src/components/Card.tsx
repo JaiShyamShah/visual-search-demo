@@ -27,6 +27,10 @@ const Card: React.FC<CardProps> = ({
           alt={title || "Image"} 
           className="group-hover:scale-105"
           loading="lazy"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://via.placeholder.com/400x400?text=Image+Not+Found';
+          }}
         />
         
         {similarity !== undefined && (

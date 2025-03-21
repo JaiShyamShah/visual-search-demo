@@ -1,10 +1,18 @@
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import Header from "@/components/Header";
 import ImageUploader from "@/components/ImageUploader";
-import ImageGrid, { ImageItem } from "@/components/ImageGrid";
-import { getAllImages, addImageToStorage } from "@/utils/imageUtils";
+import ImageGrid from "@/components/ImageGrid";
 import { ImagePlus } from "lucide-react";
+import { addImage } from "@/services/api";
+import { getAllImages } from "@/utils/imageUtils";
+
+interface ImageItem {
+  id: string;
+  src: string;
+  title?: string;
+}
 
 const Manage = () => {
   const [images, setImages] = useState<ImageItem[]>([]);
@@ -18,6 +26,7 @@ const Manage = () => {
   }, []);
   
   const loadImages = () => {
+    // Use the mock data for now as we can't easily get the actual images from the backend
     const allImages = getAllImages();
     setImages(allImages);
   };
@@ -34,15 +43,25 @@ const Manage = () => {
     setIsAdding(true);
     
     try {
-      const newImage = await addImageToStorage(uploadImage.file, title);
-      if (newImage) {
-        // Reset form and refresh images
-        setUploadImage(null);
-        setTitle("");
-        loadImages();
-      }
+      const message = await addImage(uploadImage.file);
+      toast.success(message || "Image added successfully");
+      
+      // Add the new image to the local state to update the UI
+      // In a real app, we would fetch the updated list from the backend
+      const newImage = {
+        id: Date.now().toString(),
+        src: uploadImage.preview,
+        title: title || uploadImage.file.name,
+      };
+      
+      setImages((prev) => [...prev, newImage]);
+      
+      // Reset form
+      setUploadImage(null);
+      setTitle("");
     } catch (error) {
       console.error("Error adding image:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to add image");
     } finally {
       setIsAdding(false);
     }
