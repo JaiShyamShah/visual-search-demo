@@ -17,12 +17,12 @@ const API_URL = 'http://localhost:8000';
 /**
  * Search for similar images using the query_image endpoint
  */
-export async function searchImage(file: File): Promise<SearchResult[]> {
+export async function searchSimilarImages(file: File): Promise<SearchResult[]> {
   const formData = new FormData();
   formData.append('file', file);
 
   const response = await fetch(`${API_URL}/query_image`, {
-    method: 'GET',
+    method: 'POST',
     body: formData,
   });
 

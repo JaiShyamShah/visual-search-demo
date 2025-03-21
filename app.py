@@ -1,3 +1,4 @@
+
 import os
 import torch
 import numpy as np
@@ -8,8 +9,18 @@ from transformers import AutoProcessor, AutoModel
 from torch.nn.functional import cosine_similarity
 from typing import List
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Set up CORS to allow frontend to communicate with our API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify the actual origin
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Set up device
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -41,7 +52,7 @@ class SearchResult(BaseModel):
     path: str
     similarity: float
 
-@app.post("/query_image")
+@app.post("/query_image")  # Changed from GET to POST since we're receiving file data
 async def query_image(file: UploadFile = File(...)):
     query_img = Image.open(file.file).convert("RGB")
     query_emb = get_image_embeddings(query_img, model, processor)

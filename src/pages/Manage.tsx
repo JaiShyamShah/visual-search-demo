@@ -6,7 +6,6 @@ import ImageUploader from "@/components/ImageUploader";
 import ImageGrid from "@/components/ImageGrid";
 import { ImagePlus } from "lucide-react";
 import { addImage } from "@/services/api";
-import { getAllImages } from "@/utils/imageUtils";
 
 interface ImageItem {
   id: string;
@@ -19,17 +18,42 @@ const Manage = () => {
   const [uploadImage, setUploadImage] = useState<{ file: File; preview: string } | null>(null);
   const [title, setTitle] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Function to load images from default_images folder
+  const loadImages = async () => {
+    setIsLoading(true);
+    
+    try {
+      // For simplicity, we're just loading a list of files from the default_images directory
+      // In a real app, you would have an API endpoint to list all images
+      const defaultImagesDir = "./default_images";
+      
+      // Create a placeholder array of images based on filenames
+      // In production, this would come from a backend API
+      const dummyImages: ImageItem[] = [
+        "target_1.jpg", "target_2.jpg", "target_3.jpg", "target_4.jpg", 
+        "target_5.jpg", "target_6.jpg", "target_7.jpg", "target_8.jpg", 
+        "target_9.jpg", "target_10.jpg"
+      ].map(filename => ({
+        id: filename,
+        src: `${defaultImagesDir}/${filename}`,
+        title: filename.split('.')[0]
+      }));
+      
+      setImages(dummyImages);
+    } catch (error) {
+      console.error("Error loading images:", error);
+      toast.error("Failed to load images from database");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   useEffect(() => {
     // Load images on component mount
     loadImages();
   }, []);
-  
-  const loadImages = () => {
-    // Use the mock data for now as we can't easily get the actual images from the backend
-    const allImages = getAllImages();
-    setImages(allImages);
-  };
   
   const handleImageSelect = (file: File, preview: string) => {
     setUploadImage({ file, preview });
@@ -46,15 +70,8 @@ const Manage = () => {
       const message = await addImage(uploadImage.file);
       toast.success(message || "Image added successfully");
       
-      // Add the new image to the local state to update the UI
-      // In a real app, we would fetch the updated list from the backend
-      const newImage = {
-        id: Date.now().toString(),
-        src: uploadImage.preview,
-        title: title || uploadImage.file.name,
-      };
-      
-      setImages((prev) => [...prev, newImage]);
+      // Reload images to show the newly added one
+      await loadImages();
       
       // Reset form
       setUploadImage(null);
@@ -118,6 +135,7 @@ const Manage = () => {
               <ImageGrid 
                 images={images} 
                 columns={2}
+                loading={isLoading}
                 emptyMessage="No images in database yet"
               />
             </div>
