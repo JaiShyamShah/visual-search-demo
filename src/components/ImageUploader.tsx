@@ -1,134 +1,82 @@
 
-import React, { useCallback, useState } from "react";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
-import { toast } from "sonner";
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { Upload, Image as ImageIcon } from "lucide-react";
 
 interface ImageUploaderProps {
   onImageSelect: (file: File, preview: string) => void;
   label?: string;
-  maxSizeMB?: number;
-  className?: string;
+  initialImage?: string;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({
-  onImageSelect,
-  label = "Upload an image",
-  maxSizeMB = 5,
-  className = "",
-}) => {
-  const [preview, setPreview] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  
-  const handleImageSelection = useCallback(
-    (file: File) => {
-      // Validate file size
-      const sizeMB = file.size / (1024 * 1024);
-      if (sizeMB > maxSizeMB) {
-        toast.error(`Image size exceeds ${maxSizeMB}MB limit`);
-        return;
-      }
-      
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
-        return;
-      }
-      
-      // Create preview and pass to parent
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setPreview(result);
-        onImageSelect(file, result);
-      };
-      reader.readAsDataURL(file);
-    },
-    [maxSizeMB, onImageSelect]
-  );
-  
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-  
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-  
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-      
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleImageSelection(e.dataTransfer.files[0]);
-      }
-    },
-    [handleImageSelection]
-  );
-  
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleImageSelection(e.target.files[0]);
+const ImageUploader = ({ onImageSelect, label = "Upload Image", initialImage }: ImageUploaderProps) => {
+  const [preview, setPreview] = useState<string | null>(initialImage || null);
+  const [error, setError] = useState<string | null>(null);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setError(null);
+    if (acceptedFiles.length === 0) {
+      return;
     }
-  };
-  
-  const removeImage = () => {
-    setPreview(null);
-  };
-  
+
+    const file = acceptedFiles[0];
+    
+    if (!file.type.startsWith("image/")) {
+      setError("Please upload an image file");
+      return;
+    }
+    
+    const previewUrl = URL.createObjectURL(file);
+    setPreview(previewUrl);
+    onImageSelect(file, previewUrl);
+  }, [onImageSelect]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': []
+    },
+    maxFiles: 1
+  });
+
   return (
-    <div className={`w-full ${className}`}>
-      {!preview ? (
-        <div
-          className={`dropzone ${isDragging ? "border-primary bg-primary/5" : ""}`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <input
-            type="file"
-            id="image-upload"
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileInputChange}
+    <div className="w-full">
+      {preview ? (
+        <div className="relative rounded-xl overflow-hidden border-2 border-dashed border-border hover:border-primary/50 transition-colors">
+          <img 
+            src={preview} 
+            alt="Preview" 
+            className="w-full aspect-square object-cover"
           />
-          <label
-            htmlFor="image-upload"
-            className="flex flex-col items-center cursor-pointer"
-          >
-            <Upload 
-              className="h-10 w-10 mb-4 text-muted-foreground" 
-              strokeWidth={1.5} 
-            />
-            <span className="text-lg font-medium">{label}</span>
-            <p className="text-sm text-muted-foreground mt-2">
-              Drag & drop or click to browse
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              (Max file size: {maxSizeMB}MB)
-            </p>
-          </label>
-        </div>
-      ) : (
-        <div className="relative w-full overflow-hidden rounded-xl border border-border">
-          <div className="aspect-square relative">
-            <img
-              src={preview}
-              alt="Preview"
-              className="object-cover w-full h-full animate-blur-in"
-            />
-            <button
-              type="button"
-              onClick={removeImage}
-              className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm p-1.5 rounded-full shadow-sm hover:bg-background transition-colors"
-              aria-label="Remove image"
+          <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+            <p className="text-white font-medium mb-2">Click to change image</p>
+            <div
+              {...getRootProps()}
+              className="p-3 bg-white/20 rounded-full backdrop-blur-sm cursor-pointer"
             >
-              <X size={16} />
-            </button>
+              <input {...getInputProps()} />
+              <Upload className="text-white" size={20} />
+            </div>
           </div>
         </div>
+      ) : (
+        <div 
+          {...getRootProps()} 
+          className={`dropzone ${
+            isDragActive ? "border-primary/70 bg-primary/10" : ""
+          }`}
+        >
+          <input {...getInputProps()} />
+          <ImageIcon size={32} className="text-muted-foreground mb-2" />
+          <p className="font-medium">{label}</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Drag & drop, or click to select
+          </p>
+        </div>
+      )}
+      
+      {error && (
+        <p className="text-sm text-destructive mt-2">{error}</p>
       )}
     </div>
   );

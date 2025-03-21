@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import ImageUploader from "@/components/ImageUploader";
@@ -8,17 +9,31 @@ import { Zap, ZapOff } from "lucide-react";
 import { searchSimilarImages, SearchResult } from "@/services/api";
 
 const Search = () => {
+  const location = useLocation();
   const [searchImage, setSearchImage] = useState<{ file: File; preview: string } | null>(null);
   const [results, setResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  
+  // Check if we received an image from the home page
+  useEffect(() => {
+    if (location.state?.file && location.state?.preview) {
+      setSearchImage({
+        file: location.state.file,
+        preview: location.state.preview
+      });
+      
+      // Automatically search with the received image
+      handleSearch(location.state.file);
+    }
+  }, [location.state]);
   
   const handleImageSelect = (file: File, preview: string) => {
     setSearchImage({ file, preview });
     setResults([]);
   };
   
-  const handleSearch = async () => {
-    if (!searchImage) {
+  const handleSearch = async (fileToSearch: File = searchImage?.file) => {
+    if (!fileToSearch) {
       toast.error("Please select an image to search");
       return;
     }
@@ -26,7 +41,7 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      const similarImages = await searchSimilarImages(searchImage.file);
+      const similarImages = await searchSimilarImages(fileToSearch);
       
       // Convert API results to the format expected by ImageGrid
       const formattedResults = similarImages.map((result) => ({
@@ -62,6 +77,7 @@ const Search = () => {
               <ImageUploader 
                 onImageSelect={handleImageSelect} 
                 label="Upload to search"
+                initialImage={searchImage?.preview}
               />
             </div>
             
@@ -73,7 +89,7 @@ const Search = () => {
                     Click the button below to find similar images in our database.
                   </p>
                   <button
-                    onClick={handleSearch}
+                    onClick={() => handleSearch()}
                     disabled={isSearching}
                     className="btn-primary mt-auto mb-8 py-6 flex items-center justify-center space-x-2"
                   >
