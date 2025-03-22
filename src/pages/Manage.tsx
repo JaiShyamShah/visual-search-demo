@@ -32,9 +32,9 @@ const Manage = () => {
       // Create a placeholder array of images based on filenames
       // In production, this would come from a backend API
       const dummyImages: ImageItem[] = [
-        "target_1.jpg", "target_2.jpg", "target_3.jpg", "target_4.jpg", 
-        "target_5.jpg", "target_6.jpg", "target_7.jpg", "target_8.jpg", 
-        "target_9.jpg", "target_10.jpg"
+        "image_0.jpg", "image_2.jpg", "image_3.jpg", "image_4.jpg", 
+        "image_5.jpg", "image_6.jpg", "image_7.jpg", "image_8.jpg", 
+        "image_9.jpg", "image_10.jpg"
       ].map(filename => ({
         id: filename,
         src: `${defaultImagesDir}/${filename}`,
